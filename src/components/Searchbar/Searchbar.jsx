@@ -1,5 +1,4 @@
-// import { FormContact } from './FormContact.styled';
-// import { Border } from './Border.styled';
+import { toast } from 'react-toastify';
 import {
   SearchbarHead,
   SearchForm,
@@ -7,6 +6,8 @@ import {
   Input,
   ButtonLabel,
 } from './Searchbar.styled';
+import { FaSearch } from 'react-icons/fa';
+
 const { Component } = require('react');
 
 class Searchbar extends Component {
@@ -20,9 +21,11 @@ class Searchbar extends Component {
   };
   handleSubmit = evt => {
     evt.preventDefault();
-    this.props.onSubmit({
-      searchQuery: this.state.searchQuery,
-    });
+    if (this.state.searchQuery.trim() === '') {
+      toast.error('Please enter a search topic !');
+      return;
+    }
+    this.props.onSubmit({ searchQuery: this.state.searchQuery });
     this.reset();
   };
 
@@ -36,6 +39,7 @@ class Searchbar extends Component {
         <SearchbarHead>
           <SearchForm onSubmit={this.handleSubmit}>
             <SearchFormButton type="submit">
+              <FaSearch size={22} />
               <ButtonLabel>Search</ButtonLabel>
             </SearchFormButton>
             <Input

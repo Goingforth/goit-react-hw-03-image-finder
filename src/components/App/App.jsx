@@ -1,13 +1,15 @@
 import React from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Searchbar from 'components/Searchbar/Searchbar';
+import ImageGallery from 'components/ImageGallery/ImageGallery';
 import Modal from 'components/Modal/Modal';
 import { Container } from './App.styled';
 
 class App extends React.Component {
   state = {
-    images: null,
     showModal: false,
-    searchQuery: null,
+    searchQuery: '',
   };
   componentDidMount() {}
 
@@ -42,6 +44,8 @@ class App extends React.Component {
     return (
       <Container>
         <Searchbar onSubmit={this.onSubmit} />
+        <ImageGallery searchQuery={this.state.searchQuery} />
+
         {/* <button type="button" onClick={this.toggleModal}>
           Open modal
         </button> */}
@@ -50,6 +54,7 @@ class App extends React.Component {
             <p>Loren</p>
           </Modal>
         )}
+        <ToastContainer autoClose={3000} theme={'colored'} />
       </Container>
     );
   }
