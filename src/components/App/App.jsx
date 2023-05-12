@@ -5,6 +5,7 @@ import Searchbar from 'components/Searchbar/Searchbar';
 import ImageGallery from 'components/ImageGallery/ImageGallery';
 import Modal from 'components/Modal/Modal';
 import { Container } from './App.styled';
+// import Button from 'components/Button/Button';
 
 class App extends React.Component {
   state = {
@@ -12,24 +13,6 @@ class App extends React.Component {
     searchQuery: '',
   };
   componentDidMount() {}
-
-  // componentDidUpdate(prevProps, prevState) {}
-
-  // createContact = data => {
-  //   const newContact = {
-  //     id: nanoid(),
-  //     ...data,
-  //   };
-  //   const contactsName = this.state.contacts.map(el => el.name);
-  //   const name = data.name;
-  //   contactsName.includes(name)
-  //     ? alert(`${name} is already in contacts`)
-  //     : this.setState(prevState => {
-  //         return {
-  //           contacts: prevState.contacts.concat(newContact),
-  //         };
-  //       });
-  // };
 
   onSubmit = ({ searchQuery }) => {
     this.setState({ searchQuery: searchQuery });
@@ -45,6 +28,7 @@ class App extends React.Component {
       <Container>
         <Searchbar onSubmit={this.onSubmit} />
         <ImageGallery searchQuery={this.state.searchQuery} />
+        {/* <Button /> */}
 
         {/* <button type="button" onClick={this.toggleModal}>
           Open modal
