@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Overlay, ModalWindow } from './Modal.styled';
 
 export default class Modal extends Component {
+  // state = { showModal: false };
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyDown);
   }

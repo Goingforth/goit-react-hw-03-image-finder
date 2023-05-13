@@ -1,15 +1,17 @@
 import { Component } from 'react';
+import { nanoid } from 'nanoid';
 //import { toast } from 'react-toastify';
 import { GalLery } from './ImageGallery.styled';
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import Loader from 'components/Loader/Loader';
 import { LoaderStyle } from 'components/Loader/Loader.styled';
 import Button from 'components/Button/Button';
+//import Modal from 'components/Modal/Modal';
 
 const key = '34756753-b2a76777b50bc049ab8c28d3e';
 const BASE_URL = 'https://pixabay.com/api/?';
 const per_page = 12;
-// let page = 1;
+
 export default class ImageGallery extends Component {
   state = {
     images: null,
@@ -19,13 +21,18 @@ export default class ImageGallery extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    // if (this.state.page !== prevState.page) {
-    //   console.log('Page обновился');
-    //console.log(this.state.page);
-    // }
-    if (prevProps.searchQuery !== this.props.searchQuery) {
+    console.log(this.state.page);
+    if (
+      prevProps.searchQuery !== this.props.searchQuery ||
+      prevState.page !== this.state.page
+    ) {
       const query = this.props.searchQuery;
-      this.setState({ loading: true, images: null });
+      this.setState({ loading: true });
+
+      if (prevProps.searchQuery !== this.props.searchQuery) {
+        this.setState({ images: null, page: 1 });
+      }
+
       fetch(
         `${BASE_URL}q=${query}&page=${this.state.page}&key=${key}&image_type=photo&orientation=horizontal&per_page=${per_page}`
       )
@@ -35,7 +42,9 @@ export default class ImageGallery extends Component {
           }
           return Promise.reject(new Error('ERROR request'));
         })
+        .then(images => images.hits)
         .then(images => this.setState({ images }))
+
         .catch(error => this.setState({ error }))
         .finally(() => {
           this.setState({ loading: false });
@@ -43,8 +52,10 @@ export default class ImageGallery extends Component {
     }
   }
 
-  updatePage = value => {
-    this.setState({ page: value });
+  incFeedback = () => {
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
   };
 
   render() {
@@ -60,35 +71,19 @@ export default class ImageGallery extends Component {
         {images && (
           <>
             <GalLery>
-              {images.hits.map(({ id, webformatURL, largeImageURL, tags }) => (
+              {images.map(({ webformatURL, largeImageURL, tags }) => (
                 <ImageGalleryItem
-                  key={id}
+                  key={nanoid()}
                   webformatURL={webformatURL}
                   tags={tags}
+                  largeImageURL={largeImageURL}
                 />
               ))}
             </GalLery>
-            <Button updatePage={this.updatePage} />
+            <Button onLeaveFeedback={this.incFeedback} />
           </>
         )}
       </div>
     );
   }
 }
-
-//   <GalLery>
-//     {this.state.images.total !== 0
-//       ? this.state.images.hits.map(
-//           ({ id, webformatURL, largeImageURL, tags }) => (
-//             <ImageGalleryItem
-//               key={id}
-//               webformatURL={webformatURL}
-//               tags={tags}
-//             />
-//           )
-//         )
-//       : toast.error('No result find!')}
-//  </GalLery>
-
-//||
-//   prevState.page !== this.state.page
