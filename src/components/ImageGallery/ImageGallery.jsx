@@ -21,7 +21,10 @@ export default class ImageGallery extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(this.state.page);
+    if (prevProps.searchQuery !== this.props.searchQuery) {
+      this.setState({ page: 1, images: null });
+    }
+
     if (
       prevProps.searchQuery !== this.props.searchQuery ||
       prevState.page !== this.state.page
@@ -29,9 +32,10 @@ export default class ImageGallery extends Component {
       const query = this.props.searchQuery;
       this.setState({ loading: true });
 
-      if (prevProps.searchQuery !== this.props.searchQuery) {
-        this.setState({ images: null, page: 1 });
-      }
+      // if (prevProps.searchQuery !== this.props.searchQuery) {
+      //   this.setState({ page: 1, images: null });
+
+      // }
 
       fetch(
         `${BASE_URL}q=${query}&page=${this.state.page}&key=${key}&image_type=photo&orientation=horizontal&per_page=${per_page}`
@@ -43,8 +47,31 @@ export default class ImageGallery extends Component {
           return Promise.reject(new Error('ERROR request'));
         })
         .then(images => images.hits)
-        .then(images => this.setState({ images }))
+        // .then(images =>
+        //   this.setState(prevState => ({
+        //     images: prevState.images
+        //       ? images.concat(images)
+        //       : this.setState({ images }),
+        //   }))
+        // )
+        .then(images => {
+          if (this.state.images) {
+            let newImages = [...this.state.images, ...images];
+            this.setState({
+              images: newImages,
+            });
+          } else {
+            console.log(this.state.images);
+            this.setState({
+              images: images,
+            });
+            console.log(this.state.images);
+          }
+        })
 
+        //.then(images => this.setState({ images }))
+        // .then(images => this.setState(updateImages({ images })))
+        //
         .catch(error => this.setState({ error }))
         .finally(() => {
           this.setState({ loading: false });
@@ -57,6 +84,9 @@ export default class ImageGallery extends Component {
       page: prevState.page + 1,
     }));
   };
+  // updateImages = images => {
+  //   prevState => ({ images: images });
+  // };
 
   render() {
     const { error, loading, images } = this.state;
