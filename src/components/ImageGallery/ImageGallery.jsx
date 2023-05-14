@@ -6,7 +6,6 @@ import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import Loader from 'components/Loader/Loader';
 import { LoaderStyle } from 'components/Loader/Loader.styled';
 import Button from 'components/Button/Button';
-//import Modal from 'components/Modal/Modal';
 
 const key = '34756753-b2a76777b50bc049ab8c28d3e';
 const BASE_URL = 'https://pixabay.com/api/?';
@@ -18,6 +17,7 @@ export default class ImageGallery extends Component {
     error: null,
     loading: false,
     page: 1,
+    status: 'idle',
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -89,31 +89,61 @@ export default class ImageGallery extends Component {
   // };
 
   render() {
-    const { error, loading, images } = this.state;
-    return (
-      <div>
-        {error && <h1>{error.message}</h1>}
-        {loading && (
-          <LoaderStyle>
-            <Loader />
-          </LoaderStyle>
-        )}
-        {images && (
-          <>
-            <GalLery>
-              {images.map(({ webformatURL, largeImageURL, tags }) => (
-                <ImageGalleryItem
-                  key={nanoid()}
-                  webformatURL={webformatURL}
-                  tags={tags}
-                  largeImageURL={largeImageURL}
-                />
-              ))}
-            </GalLery>
-            <Button onLeaveFeedback={this.incFeedback} />
-          </>
-        )}
-      </div>
-    );
+    const { error, loading, images, status } = this.state;
+    if (status === 'idle') {
+      return <h2>Input themes</h2>;
+    }
+    if (status === 'pending') {
+      return (
+        <LoaderStyle>
+          <Loader />
+        </LoaderStyle>
+      );
+    }
+    if (status === 'regjected') {
+      return <h1>{error.message}</h1>;
+    }
+    if (status === 'resolved') {
+      return (
+        <>
+          <GalLery>
+            {images.map(({ webformatURL, largeImageURL, tags }) => (
+              <ImageGalleryItem
+                key={nanoid()}
+                webformatURL={webformatURL}
+                tags={tags}
+                largeImageURL={largeImageURL}
+              />
+            ))}
+          </GalLery>
+          <Button onLeaveFeedback={this.incFeedback} />
+        </>
+      );
+    }
+    // return (
+    //   <div>
+    //     {error && <h1>{error.message}</h1>}
+    //     {loading && (
+    //       <LoaderStyle>
+    //         <Loader />
+    //       </LoaderStyle>
+    //     )}
+    //     {images && (
+    //       <>
+    //         <GalLery>
+    //           {images.map(({ webformatURL, largeImageURL, tags }) => (
+    //             <ImageGalleryItem
+    //               key={nanoid()}
+    //               webformatURL={webformatURL}
+    //               tags={tags}
+    //               largeImageURL={largeImageURL}
+    //             />
+    //           ))}
+    //         </GalLery>
+    //         <Button onLeaveFeedback={this.incFeedback} />
+    //       </>
+    //     )}
+    //   </div>
+    // );
   }
 }
