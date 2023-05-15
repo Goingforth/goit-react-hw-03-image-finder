@@ -19,20 +19,19 @@ export default class ImageGallery extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    // if (prevProps.searchQuery !== this.props.searchQuery) {
-    //   this.setState({ page: 1, images: null });
-    // }
-
-    if (
-      prevProps.searchQuery !== this.props.searchQuery ||
-      prevState.page !== this.state.page
-    ) {
-      if (prevProps.searchQuery !== this.props.searchQuery) {
+    const prevRequest = prevProps.searchQuery;
+    const searchQuery = this.props.searchQuery;
+    const page = this.state.page;
+    const prevPage = prevState.page;
+    if (prevRequest !== searchQuery || prevPage !== page) {
+      if (prevRequest !== this.props.searchQuery) {
         this.setState({ page: 1, images: null });
       }
-
-      const searchQuery = this.props.searchQuery;
-      const page = this.state.page;
+      //   if (prevProps.searchQuery !== this.props.searchQuery) {
+      //     this.setState( function (prevState, props) {
+      //       return { page: 1, images: null };
+      //     });
+      //   }
       this.setState({ loading: true });
 
       fetchImages({ searchQuery, page })
