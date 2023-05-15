@@ -1,15 +1,13 @@
 import { Component } from 'react';
-import { nanoid } from 'nanoid';
-//import { toast } from 'react-toastify';
+import PropTypes from 'prop-types';
 import { GalLery } from './ImageGallery.styled';
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import Loader from 'components/Loader/Loader';
 import { LoaderStyle } from 'components/Loader/Loader.styled';
 import Button from 'components/Button/Button';
-
-const key = '34756753-b2a76777b50bc049ab8c28d3e';
-const BASE_URL = 'https://pixabay.com/api/?';
-const per_page = 12;
+import fetchImages from 'components/services/images-api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default class ImageGallery extends Component {
   state = {
@@ -17,133 +15,102 @@ export default class ImageGallery extends Component {
     error: null,
     loading: false,
     page: 1,
-    status: 'idle',
+    loadMore: null,
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.searchQuery !== this.props.searchQuery) {
-      this.setState({ page: 1, images: null });
-    }
+    // if (prevProps.searchQuery !== this.props.searchQuery) {
+    //   this.setState({ page: 1, images: null });
+    // }
 
     if (
       prevProps.searchQuery !== this.props.searchQuery ||
       prevState.page !== this.state.page
     ) {
-      const query = this.props.searchQuery;
+      if (prevProps.searchQuery !== this.props.searchQuery) {
+        this.setState({ page: 1, images: null });
+      }
+
+      const searchQuery = this.props.searchQuery;
+      const page = this.state.page;
       this.setState({ loading: true });
 
-      // if (prevProps.searchQuery !== this.props.searchQuery) {
-      //   this.setState({ page: 1, images: null });
-
-      // }
-
-      fetch(
-        `${BASE_URL}q=${query}&page=${this.state.page}&key=${key}&image_type=photo&orientation=horizontal&per_page=${per_page}`
-      )
-        .then(res => {
-          if (res.ok) {
-            return res.json();
-          }
-          return Promise.reject(new Error('ERROR request'));
-        })
+      fetchImages({ searchQuery, page })
         .then(images => images.hits)
-        // .then(images =>
-        //   this.setState(prevState => ({
-        //     images: prevState.images
-        //       ? images.concat(images)
-        //       : this.setState({ images }),
-        //   }))
-        // )
         .then(images => {
-          if (this.state.images) {
-            let newImages = [...this.state.images, ...images];
+          if (images.length === 0) {
+            return Promise.reject(new Error());
+          }
+          return images;
+        })
+        .then(images => {
+          if (images.length < 12) {
             this.setState({
-              images: newImages,
+              loadMore: null,
+            });
+            toast.info('Pictures are over');
+          } else {
+            this.setState({
+              loadMore: true,
+            });
+          }
+          if (this.state.images) {
+            this.setState({
+              images: [...this.state.images, ...images],
             });
           } else {
-            console.log(this.state.images);
             this.setState({
               images: images,
             });
-            console.log(this.state.images);
           }
         })
 
-        //.then(images => this.setState({ images }))
-        // .then(images => this.setState(updateImages({ images })))
-        //
-        .catch(error => this.setState({ error }))
+        .catch(() => {
+          toast.info('There are no images for this search');
+        })
         .finally(() => {
-          this.setState({ loading: false });
+          this.setState({ loading: null });
         });
     }
   }
 
-  incFeedback = () => {
+  onClick = () => {
     this.setState(prevState => ({
       page: prevState.page + 1,
     }));
   };
-  // updateImages = images => {
-  //   prevState => ({ images: images });
-  // };
-
   render() {
-    const { error, loading, images, status } = this.state;
-    if (status === 'idle') {
-      return <h2>Input themes</h2>;
-    }
-    if (status === 'pending') {
-      return (
-        <LoaderStyle>
-          <Loader />
-        </LoaderStyle>
-      );
-    }
-    if (status === 'regjected') {
-      return <h1>{error.message}</h1>;
-    }
-    if (status === 'resolved') {
-      return (
-        <>
-          <GalLery>
-            {images.map(({ webformatURL, largeImageURL, tags }) => (
-              <ImageGalleryItem
-                key={nanoid()}
-                webformatURL={webformatURL}
-                tags={tags}
-                largeImageURL={largeImageURL}
-              />
-            ))}
-          </GalLery>
-          <Button onLeaveFeedback={this.incFeedback} />
-        </>
-      );
-    }
-    // return (
-    //   <div>
-    //     {error && <h1>{error.message}</h1>}
-    //     {loading && (
-    //       <LoaderStyle>
-    //         <Loader />
-    //       </LoaderStyle>
-    //     )}
-    //     {images && (
-    //       <>
-    //         <GalLery>
-    //           {images.map(({ webformatURL, largeImageURL, tags }) => (
-    //             <ImageGalleryItem
-    //               key={nanoid()}
-    //               webformatURL={webformatURL}
-    //               tags={tags}
-    //               largeImageURL={largeImageURL}
-    //             />
-    //           ))}
-    //         </GalLery>
-    //         <Button onLeaveFeedback={this.incFeedback} />
-    //       </>
-    //     )}
-    //   </div>
-    // );
+    const { error, loading, images, loadMore } = this.state;
+
+    return (
+      <div>
+        {error && <h2>{error.message}</h2>}
+        {loading && (
+          <LoaderStyle>
+            <Loader />
+          </LoaderStyle>
+        )}
+        {images && (
+          <>
+            <GalLery>
+              {images.map(({ id, webformatURL, largeImageURL, tags }) => (
+                <ImageGalleryItem
+                  key={id}
+                  webformatURL={webformatURL}
+                  tags={tags}
+                  largeImageURL={largeImageURL}
+                />
+              ))}
+            </GalLery>
+            {loadMore && <Button onClick={this.onClick} />}
+          </>
+        )}
+      </div>
+    );
   }
 }
+
+ImageGallery.propTypes = {
+  images: PropTypes.array,
+  onClick: PropTypes.func,
+};

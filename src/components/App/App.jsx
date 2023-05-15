@@ -9,7 +9,6 @@ class App extends React.Component {
   state = {
     searchQuery: '',
   };
-  componentDidMount() {}
 
   onSubmit = ({ searchQuery }) => {
     this.setState({ searchQuery: searchQuery });
