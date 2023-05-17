@@ -25,7 +25,8 @@ class Searchbar extends Component {
       toast.error('Please enter a search topic !');
       return;
     }
-    this.props.onSubmit({ searchQuery: this.state.searchQuery });
+
+    this.props.onSubmit(this.state.searchQuery);
     this.reset();
   };
 

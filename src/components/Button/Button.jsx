@@ -4,7 +4,6 @@ import { LocationButton, LoadMore } from './Button.styled';
 const Button = ({ onClick }) => {
   return (
     <LocationButton>
-      {/* <LoadMore type="button" onClick={() => onClick}> */}
       <LoadMore type="button" onClick={onClick}>
         Load more
       </LoadMore>
